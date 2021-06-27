@@ -1,5 +1,4 @@
-CFLAGS=-O2 -Wall -Wextra -lX11 -lpci
-PREFIX=$(HOME)/.local
+CFLAGS=-std=gnu11 -Wall -ggdb -Wextra -lX11 -lpci
 CACHE=$(shell if [ "$$XDG_CACHE_HOME" ]; then echo "$$XDG_CACHE_HOME"; else echo "$$HOME"/.cache; fi)
 
 all: paleofetch
@@ -9,9 +8,8 @@ clean:
 
 paleofetch: paleofetch.c paleofetch.h config.h
 	$(eval battery_path := $(shell ./config_scripts/battery_config.sh))
-	$(CC) paleofetch.c -o paleofetch $(CFLAGS) -D $(battery_path)
-	strip paleofetch
+	gcc paleofetch.c -g -o paleofetch $(CFLAGS) -D $(battery_path)
 
 install: paleofetch
 	mkdir -p $(PREFIX)/bin
-	install ./paleofetch $(PREFIX)/bin/paleofetch
+	install ./paleofetch /usr/bin/paleofetch
