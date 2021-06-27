@@ -18,6 +18,7 @@
 
 #include "paleofetch.h"
 #include "config.h"
+#include "icons/logo_program.h"
 
 #define BUF_SIZE 150
 #define COUNT(x) (int)(sizeof x / sizeof *x)
@@ -115,6 +116,7 @@ void replace_substring(char *str, const char *sub_str, const char *repl_str, siz
     if (strlen(str) - sub_len + repl_len >= BUF_SIZE / 2) {
         status = -1;
         halt_and_catch_fire("new substring too long to replace");
+        
     }
 
     strcpy(buffer, start + sub_len);
@@ -712,45 +714,36 @@ int main(int argc, char *argv[]) {
         fclose(cache_file); // We just need the first (and only) line.
     }
 
-    int offset = 0;
+    int loop = 1;
 
-    for (int i = 0; i < COUNT(LOGO); i++) {
-        // If we've run out of information to show...
-        if(i >= COUNT(config) - offset) // just print the next line of the logo
-            printf(COLOR"%s\n", LOGO[i]);
-        else {
-            // Otherwise, we've got a bit of work to do.
-            char *label = config[i+offset].label,
-                 *value = get_value(config[i+offset], read_cache, cache_data);
-            if (strcmp(value, "") != 0) { // check if value is an empty string
-                printf(COLOR"%s%s\e[0m%s\n", LOGO[i], label, value); // just print if not empty
-            } else {
-                if (strcmp(label, "") != 0) { // check if label is empty, otherwise it's a spacer
-                    ++offset; // print next line of information
-                    free(value); // free memory allocated for empty value
-                    label = config[i+offset].label; // read new label and value
-                    value = get_value(config[i+offset], read_cache, cache_data);
+    do {
+        int offset = 0;
+        for (int i = 0; i < COUNT(LOGO); i++) {
+            // If we've run out of information to show...
+            if(i >= COUNT(config) - offset) // just print the next line of the logo
+                printf(COLOR"%s\n", LOGO[i]);
+            else {
+                // Otherwise, we've got a bit of work to do.
+                char *label = config[i+offset].label,
+                    *value = get_value(config[i+offset], read_cache, cache_data);
+                if (strcmp(value, "") != 0) { // check if value is an empty string
+                    printf(COLOR"%s%s\e[0m%s\n", LOGO[i], label, value); // just print if not empty
+                } else {
+                    if (strcmp(label, "") != 0) { // check if label is empty, otherwise it's a spacer
+                        ++offset; // print next line of information
+                        label = config[i+offset].label; // read new label and value
+                        value = get_value(config[i+offset], read_cache, cache_data);
+                    }
+                    printf(COLOR"%s%s\e[0m%s\n", LOGO[i], label, value);
                 }
-                printf(COLOR"%s%s\e[0m%s\n", LOGO[i], label, value);
             }
-            free(value);
-
         }
-    }
-    puts("\e[0m");
-
-    /* Write out our cache data (if we have any). */
-    if(!read_cache && *cache_data) {
-        cache_file = fopen(cache, "w");
-        fprintf(cache_file, "%s", cache_data);
-        fclose(cache_file);
-    }
-
-    free(cache);
-    free(cache_data);
-    if(display != NULL) { 
-        XCloseDisplay(display);
-    }
+        update_logo();
+        if (loop) {
+            usleep(20000);
+            fputs("\x1b[H\x1b[2J", stdout);
+        }
+    } while (loop);
 
     return 0;
 }
