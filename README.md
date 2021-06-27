@@ -1,6 +1,8 @@
 paleofetch
 ==========
 
+#NOTICE !!! Trying to add dynamic ascii gif icon functionality. THIS IS NOT THE OFFICIAL REPO FOR PALEOFETCH.
+
 A rewrite of [neofetch](https://github.com/dylanaraps/neofetch) in C.
 Currently only supports Linux and Xorg.
 
