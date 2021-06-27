@@ -1,4 +1,3 @@
-#include "logos/arch.h"
 #define COLOR "\e[1;36m"
 
 #define CONFIG \
